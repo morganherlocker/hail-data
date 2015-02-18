@@ -1,0 +1,24 @@
+{
+  "name": "hail-data",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/morganherlocker/hail-data.git"
+  },
+  "author": "morganherlocker",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/morganherlocker/hail-data/issues"
+  },
+  "homepage": "https://github.com/morganherlocker/hail-data",
+  "dependencies": {
+    "turf": "^1.4.0",
+    "turf-square-grid": "^1.0.0",
+    "turf-triangle-grid": "^1.0.0"
+  }
+}
