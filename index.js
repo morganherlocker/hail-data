@@ -2,7 +2,7 @@ var turf = require('turf');
 turf.squareGrid = require('turf-square-grid');
 turf.triangleGrid = require('turf-triangle-grid');
 var fs = require('fs');
-/*
+
 var paths = JSON.parse(fs.readFileSync('./hail-paths.geojson'));
 
 console.log('calculating centroids..');
@@ -11,9 +11,9 @@ hail.features = paths.features.map(function(path, k){
     var cent = turf.centroid(path);
     cent.properties.y = path.properties.YR;
     return cent;
-})
+});
 
-fs.writeFileSync('./hail.geojson', JSON.stringify(hail, null, 2))
+fs.writeFileSync('./hail.geojson', JSON.stringify(hail, null, 2));
 
 var bbox = [-126,25,-66,50];
 var tribin = turf.triangleGrid(bbox, 100, 'miles');
@@ -35,30 +35,21 @@ pointbin.features = squarebin.features.map(function(square, k){
     return cent;
 });
 
-*/
-
-//////DELETE BLOCK
-var tribin = JSON.parse(fs.readFileSync('./tribin.geojson'));
-var hexbin = JSON.parse(fs.readFileSync('./hexbin.geojson'));
-var squarebin = JSON.parse(fs.readFileSync('./squarebin.geojson'));
-var pointbin = JSON.parse(fs.readFileSync('./pointbin.geojson'));
-//////
-
-console.log('quantile tribin..')
+console.log('quantile tribin..');
 tribin = normalize(tribin);
-console.log('quantile hexbin..')
+console.log('quantile hexbin..');
 hexbin = normalize(hexbin);
-console.log('quantile squarebin..')
+console.log('quantile squarebin..');
 squarebin = normalize(squarebin);
-console.log('quantile pointbin..')
+console.log('quantile pointbin..');
 pointbin = normalize(pointbin);
-/*
+
 console.log('saving grids..');
 fs.writeFileSync('./tribin.geojson', JSON.stringify(tribin));
 fs.writeFileSync('./hexbin.geojson', JSON.stringify(hexbin));
 fs.writeFileSync('./squarebin.geojson', JSON.stringify(squarebin));
 fs.writeFileSync('./pointbin.geojson', JSON.stringify(pointbin));
-*/
+
 console.log('..complete');
 
 function timeExpand (grid, hail, name) {
@@ -90,20 +81,33 @@ function normalize (grid) {
         }
     });
 
-    var breaks = [];
+    var breaks = {};
     var year = 1955;
     while(year <= 2013){
-        var filtered = turf.featurecollection([])
+        var filtered = turf.featurecollection([]);
         filtered.features = grid.features.filter(function(cell){
             if (cell.properties[year.toString()] > 0) return true;
         });
 
-        var newBreak = {};
-        newBreak[year.toString()] = turf.quantile(filtered, year.toString(), [20,40,60,70,80,90,95,99]);
-        breaks.push(newBreak);
+        breaks[year.toString()] = turf.quantile(filtered, year.toString(), [20,40,60,70,80,90,95,99]);
         year++;
     }
-    grid = grid.features.map(function(cell){
 
-    });
+    year = 1955;
+    while(year <= 2013){
+        var translation = breaks[year.toString()];
+        var translations = [
+            [0, translation[0], 1],
+            [translation[1], translation[2], 2],
+            [translation[2], translation[3], 3],
+            [translation[3], translation[4], 4],
+            [translation[4], translation[5], 5],
+            [translation[5], translation[6], 6],
+            [translation[6], translation[7], 7],
+            [translation[7], Infinity, 8]
+        ];
+        grid = turf.reclass(grid, year.toString(), year.toString()+'_class', translations);
+        year++;
+    }
+    return grid;
 }
