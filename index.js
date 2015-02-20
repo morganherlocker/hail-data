@@ -107,6 +107,9 @@ function normalize (grid) {
             [translation[7], Infinity, 8]
         ];
         grid = turf.reclass(grid, year.toString(), year.toString()+'_class', translations);
+        grid.features.forEach(function(cell){
+            if(!cell.properties[year.toString()+'_class']) cell.properties[year.toString()+'_class'] = 0;
+        })
         year++;
     }
     return grid;
